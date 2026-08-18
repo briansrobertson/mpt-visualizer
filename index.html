@@ -437,15 +437,6 @@
     </div>
 
     <div class="filt-group">
-      <label class="filt-label">Value range</label>
-      <div class="range-row">
-        <input type="number" id="valMin" placeholder="min" step="any">
-        <span>to</span>
-        <input type="number" id="valMax" placeholder="max" step="any">
-      </div>
-    </div>
-
-    <div class="filt-group">
       <label class="filt-label">Field type</label>
       <div class="seg" id="fieldTypeSeg">
         <button data-val="All" class="active">All</button>
@@ -558,7 +549,6 @@
     dateFrom: null, dateTo: null,
     refSet: null,      // null = all
     trSet: null,       // null = all
-    valMin: null, valMax: null,
     fieldType: 'All',
     rateStats: {'25th percentile':true, 'mean':true, 'mode':true, '75th percentile':true},
     probStats: {'cut':true, 'hike':true, 'range':true},
@@ -778,12 +768,6 @@
     document.getElementById('dateTo').addEventListener('change', function(e){
       state.dateTo = e.target.value || MAX_DATE; state.page=1; recompute();
     });
-    document.getElementById('valMin').addEventListener('input', debounce(function(e){
-      state.valMin = e.target.value === '' ? null : parseFloat(e.target.value); state.page=1; recompute();
-    }));
-    document.getElementById('valMax').addEventListener('input', debounce(function(e){
-      state.valMax = e.target.value === '' ? null : parseFloat(e.target.value); state.page=1; recompute();
-    }));
     document.getElementById('bpsMin').addEventListener('input', debounce(function(e){
       state.bpsMin = e.target.value === '' ? null : parseFloat(e.target.value); state.page=1; recompute();
     }));
@@ -850,9 +834,6 @@
     document.getElementById('dateFrom').value = MIN_DATE;
     document.getElementById('dateTo').value = MAX_DATE;
     state.dateFrom = MIN_DATE; state.dateTo = MAX_DATE;
-    state.valMin = null; state.valMax = null;
-    document.getElementById('valMin').value = '';
-    document.getElementById('valMax').value = '';
     state.bpsMin = null; state.bpsMax = null;
     document.getElementById('bpsMin').value = '';
     document.getElementById('bpsMax').value = '';
@@ -877,9 +858,6 @@
     if (row.date < state.dateFrom || row.date > state.dateTo) return false;
     if (state.refSet && !state.refSet[row.reference_start]) return false;
     if (state.trSet && !state.trSet[row.target_range]) return false;
-    if (state.valMin !== null && row.value < state.valMin) return false;
-    if (state.valMax !== null && row.value > state.valMax) return false;
-
     if (state.fieldType === 'Rate'){
       if (row.field_type !== 'Rate') return false;
       if (!state.rateStats[row.field_stat]) return false;
