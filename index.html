@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MPT Distribution Explorer — Atlanta Fed Market Probability Tracker</title>
+<title>MPT Data Explorer — Atlanta Fed Market Probability Tracker</title>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans/400.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans/500.css">
@@ -392,18 +392,110 @@
   }
   footer.foot a{ color:var(--navy-700); }
 
+  .def-link{
+    color:var(--orange-500);
+    font-weight:600;
+    text-decoration:underline;
+    text-underline-offset:2px;
+  }
+  .def-link:hover{ color:var(--orange-600); }
+
   @media (max-width: 640px){
     .wrap{ padding:16px; }
     header.top{ padding:18px; }
+  }
+
+  /* ---------- license modal ---------- */
+  body.modal-lock{ overflow:hidden; }
+  .modal-overlay{
+    position:fixed; inset:0;
+    background:rgba(8,17,36,.74);
+    z-index:1000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .modal-panel{
+    background:#fff;
+    width:100%;
+    max-width:660px;
+    max-height:85vh;
+    overflow-y:auto;
+    border-radius:8px;
+    border-top:4px solid var(--orange-600);
+    padding:30px 32px 26px;
+    box-shadow:0 24px 70px rgba(4,10,24,.45);
+  }
+  .modal-panel .eyebrow{ margin-bottom:8px; }
+  .modal-panel h2{
+    margin:0 0 16px;
+    font-size:18px;
+    font-weight:700;
+    color:var(--navy-900);
+  }
+  .modal-body p{
+    font-size:12.5px;
+    line-height:1.6;
+    color:var(--ink-soft);
+    margin:0 0 14px;
+  }
+  .modal-body .legal-block{
+    font-family:var(--mono);
+    font-size:11px;
+    line-height:1.65;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:14px 16px;
+    color:var(--ink);
+    margin:0 0 14px;
+  }
+  .modal-body hr{
+    border:none;
+    border-top:1px dashed var(--line);
+    margin:18px 0;
+  }
+  .modal-footer{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    gap:12px;
+    padding-top:6px;
+    border-top:1px solid var(--line-soft);
+    margin-top:4px;
+  }
+  .modal-footer .fine{
+    font-family:var(--mono);
+    font-size:10.5px;
+    color:var(--ink-soft);
+    margin-right:auto;
   }
 </style>
 </head>
 <body>
 
+<div class="modal-overlay" id="licenseModal">
+  <div class="modal-panel">
+    <p class="eyebrow">Federal Reserve Bank of Atlanta &middot; Market Probability Tracker</p>
+    <h2>Data License &amp; Disclaimer</h2>
+    <div class="modal-body">
+      <p>Atlanta Fed Market Probability Tracker is not an official forecast of the Federal Reserve Bank of Atlanta, its president, the Federal Reserve System, or the FOMC. Use of this data is permitted for personal and educational purposes only. Copyright &copy; 2024, Federal Reserve Bank of Atlanta. All rights reserved.</p>
+      <div class="legal-block">THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</div>
+      <hr>
+      <p>CME Group market data is used under permission from CME as a source of information for this report. CME Group has no other connection to Federal Reserve Bank of Atlanta products and services and does not sponsor, endorse, recommend or promote the report, its contents or the authors or any of their respective products or services. CME Group has no obligation or liability in connection with the report, its contents or the authors or any of their respective products or services. CME Group does not guarantee the accuracy and/or the completeness of any market data in connection with the report, its contents or the authors or any of their respective products or services and shall not have any liability for any errors, omissions, or interruptions therein. There are no third-party beneficiaries of any agreements or arrangements between CME Group and the authors.</p>
+    </div>
+    <div class="modal-footer">
+      <span class="fine">Source: workbook LICENSE sheet</span>
+      <button class="primary" id="acceptLicense">I Accept</button>
+    </div>
+  </div>
+</div>
+
 <header class="top">
   <p class="eyebrow">Federal Reserve Bank of Atlanta &middot; Market Probability Tracker</p>
-  <h1>MPT Distribution Explorer</h1>
-  <p class="subhead">Filter and export discretized probability distributions estimated from CME 3-month SOFR options — rate percentiles/mean/mode and probability mass by 25bps target range, cut, and hike, by observation date and reference window.</p>
+  <h1>MPT Data Explorer</h1>
+  <p class="subhead">Filter and export discretized probability distributions estimated from CME 3-month SOFR options — rate percentiles/mean/mode and probability mass by 25bps target range, cut, and hike, by observation date and reference window. <a class="def-link" href="field-definitions.html" target="_blank" rel="noopener">Click here for field definitions.</a></p>
   <div class="top-stats" id="topStats"></div>
 </header>
 
@@ -531,12 +623,29 @@
 </div>
 
 <footer class="foot">
-  Source file: <code>mpt_histdata.xlsx</code> (same directory) &middot; parsed client-side, nothing leaves your browser.
-  Distributions estimated from CME 3-month SOFR option prices; see the workbook's DICTIONARY sheet for field definitions.
+  Source file: <code>mpt_histdata.xlsx</code> &middot; parsed client-side.
+  Distributions estimated from CME 3-month SOFR option prices.
 </footer>
 
 <script>
 (function(){
+
+  // ---------- license modal ----------
+  (function(){
+    var LICENSE_KEY = 'mptLicenseAccepted';
+    var modal = document.getElementById('licenseModal');
+    var acceptBtn = document.getElementById('acceptLicense');
+    if (localStorage.getItem(LICENSE_KEY)){
+      modal.style.display = 'none';
+    } else {
+      document.body.classList.add('modal-lock');
+    }
+    acceptBtn.addEventListener('click', function(){
+      try { localStorage.setItem(LICENSE_KEY, new Date().toISOString()); } catch(e){}
+      modal.style.display = 'none';
+      document.body.classList.remove('modal-lock');
+    });
+  })();
 
   // ---------- state ----------
   var RAW = [];              // full parsed rows
