@@ -1,0 +1,985 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MPT Distribution Explorer — Atlanta Fed Market Probability Tracker</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans/400.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans/600.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans/700.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-mono/400.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-mono/600.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+  :root{
+    --navy-900:#0A1730;
+    --navy-800:#0F2141;
+    --navy-700:#16305C;
+    --navy-500:#274B87;
+    --orange-600:#C1521C;
+    --orange-500:#D9662A;
+    --orange-100:#FBE7DA;
+    --paper:#EEF0F3;
+    --panel:#FFFFFF;
+    --ink:#0F1522;
+    --ink-soft:#4A5468;
+    --line:#D6DAE2;
+    --line-soft:#E7E9EE;
+    --good:#2E7D4F;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:14px;
+    line-height:1.45;
+  }
+
+  /* ---------- header ---------- */
+  header.top{
+    background:linear-gradient(180deg, var(--navy-900) 0%, var(--navy-800) 100%);
+    color:#EDEFF4;
+    padding:22px 28px 20px;
+    border-bottom:3px solid var(--orange-600);
+  }
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--orange-500);
+    margin:0 0 6px;
+  }
+  h1{
+    margin:0 0 6px;
+    font-size:22px;
+    font-weight:700;
+    letter-spacing:-.01em;
+  }
+  .subhead{
+    margin:0;
+    color:#B9C2D6;
+    font-size:12.5px;
+    max-width:920px;
+  }
+  .top-stats{
+    display:flex;
+    gap:22px;
+    margin-top:14px;
+    flex-wrap:wrap;
+  }
+  .top-stat{
+    font-family:var(--mono);
+    font-size:11.5px;
+    color:#9FACC7;
+    border-left:2px solid var(--navy-500);
+    padding-left:10px;
+  }
+  .top-stat b{
+    display:block;
+    color:#fff;
+    font-size:15px;
+    font-weight:600;
+    font-family:var(--sans);
+  }
+
+  /* ---------- layout ---------- */
+  .wrap{
+    max-width:1400px;
+    margin:0 auto;
+    padding:20px 28px 48px;
+  }
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+  }
+
+  /* ---------- filter bar ---------- */
+  .filters{
+    padding:16px 18px;
+    margin-bottom:16px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));
+    gap:16px 20px;
+  }
+  .filt-group{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    min-width:0;
+  }
+  .filt-label{
+    font-size:10.5px;
+    font-weight:600;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  input[type=date], input[type=number], input[type=text]{
+    font-family:var(--mono);
+    font-size:13px;
+    padding:6px 8px;
+    border:1px solid var(--line);
+    border-radius:4px;
+    background:#fff;
+    color:var(--ink);
+    width:100%;
+  }
+  input[type=date]:focus, input[type=number]:focus, input[type=text]:focus{
+    outline:2px solid var(--orange-500);
+    outline-offset:1px;
+    border-color:var(--orange-500);
+  }
+  .range-row{ display:flex; align-items:center; gap:6px; }
+  .range-row span{ color:var(--ink-soft); font-size:11px; }
+
+  details.msel{
+    position:relative;
+    border:1px solid var(--line);
+    border-radius:4px;
+    background:#fff;
+  }
+  details.msel summary{
+    list-style:none;
+    cursor:pointer;
+    padding:6px 10px;
+    font-family:var(--mono);
+    font-size:12.5px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+    color:var(--ink);
+  }
+  details.msel summary::-webkit-details-marker{ display:none; }
+  details.msel summary:after{
+    content:"▾";
+    color:var(--ink-soft);
+    font-size:10px;
+  }
+  details.msel[open] summary:after{ content:"▴"; }
+  .msel-panel{
+    position:absolute;
+    z-index:20;
+    top:calc(100% + 4px);
+    left:0;
+    min-width:220px;
+    max-height:260px;
+    overflow-y:auto;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:6px;
+    box-shadow:0 8px 24px rgba(10,23,48,.15);
+    padding:6px;
+  }
+  .msel-actions{
+    display:flex;
+    gap:6px;
+    padding:4px 4px 8px;
+    border-bottom:1px solid var(--line-soft);
+    margin-bottom:6px;
+  }
+  .msel-actions button{
+    font-family:var(--sans);
+    font-size:10.5px;
+    font-weight:600;
+    border:1px solid var(--line);
+    background:var(--paper);
+    color:var(--ink-soft);
+    padding:3px 8px;
+    border-radius:3px;
+    cursor:pointer;
+  }
+  .msel-actions button:hover{ background:var(--orange-100); border-color:var(--orange-500); color:var(--orange-600); }
+  label.msel-item{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    padding:3px 6px;
+    border-radius:3px;
+    font-family:var(--mono);
+    font-size:12.5px;
+    cursor:pointer;
+  }
+  label.msel-item:hover{ background:var(--paper); }
+  label.msel-item input{ accent-color:var(--orange-600); }
+
+  .seg{
+    display:flex;
+    border:1px solid var(--line);
+    border-radius:4px;
+    overflow:hidden;
+    width:fit-content;
+  }
+  .seg button{
+    font-family:var(--sans);
+    font-size:12px;
+    font-weight:600;
+    padding:6px 12px;
+    border:none;
+    background:#fff;
+    color:var(--ink-soft);
+    cursor:pointer;
+    border-right:1px solid var(--line);
+  }
+  .seg button:last-child{ border-right:none; }
+  .seg button.active{ background:var(--navy-800); color:#fff; }
+  .seg button:hover:not(.active){ background:var(--orange-100); color:var(--orange-600); }
+
+  .stat-sub{
+    grid-column:1 / -1;
+    display:flex;
+    flex-wrap:wrap;
+    gap:18px;
+    align-items:flex-end;
+    padding-top:4px;
+    border-top:1px dashed var(--line-soft);
+  }
+  .chk-row{ display:flex; gap:14px; flex-wrap:wrap; }
+  .chk-item{
+    display:flex; align-items:center; gap:6px;
+    font-family:var(--mono); font-size:12.5px; color:var(--ink);
+  }
+  .chk-item input{ accent-color:var(--orange-600); }
+
+  .filt-footer{
+    grid-column:1 / -1;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    padding-top:10px;
+    border-top:1px solid var(--line-soft);
+  }
+  .count-readout{
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:var(--ink-soft);
+  }
+  .count-readout b{ color:var(--navy-800); font-size:14px; }
+  .count-readout .pct{ color:var(--orange-600); }
+
+  .btns{ display:flex; gap:10px; }
+  button.primary, button.ghost{
+    font-family:var(--sans);
+    font-weight:600;
+    font-size:12.5px;
+    padding:8px 14px;
+    border-radius:4px;
+    cursor:pointer;
+  }
+  button.primary{
+    background:var(--orange-600);
+    color:#fff;
+    border:1px solid var(--orange-600);
+  }
+  button.primary:hover{ background:#A9451A; }
+  button.primary:disabled{ background:#C9AE9F; border-color:#C9AE9F; cursor:not-allowed; }
+  button.ghost{
+    background:#fff;
+    color:var(--navy-800);
+    border:1px solid var(--line);
+  }
+  button.ghost:hover{ border-color:var(--navy-500); }
+
+  /* ---------- table ---------- */
+  .table-panel{ overflow:hidden; }
+  .table-scroll{ overflow-x:auto; }
+  table.data{
+    width:100%;
+    border-collapse:collapse;
+    font-family:var(--mono);
+    font-size:12.5px;
+  }
+  table.data thead th{
+    position:sticky; top:0;
+    background:var(--navy-900);
+    color:#EDEFF4;
+    text-align:left;
+    padding:9px 12px;
+    font-weight:600;
+    font-family:var(--sans);
+    font-size:11px;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    cursor:pointer;
+    white-space:nowrap;
+    user-select:none;
+  }
+  table.data thead th:hover{ background:var(--navy-700); }
+  table.data thead th .arrow{ color:var(--orange-500); margin-left:4px; }
+  table.data tbody td{
+    padding:7px 12px;
+    border-bottom:1px solid var(--line-soft);
+    white-space:nowrap;
+  }
+  table.data tbody tr:nth-child(even){ background:#FAFBFC; }
+  table.data tbody tr:hover{ background:var(--orange-100); }
+  td.num{ text-align:right; font-weight:600; color:var(--navy-800); }
+  td.tag-rate{ color:var(--navy-700); }
+  td.tag-prob{ color:var(--orange-600); }
+
+  .empty-state{ padding:60px 20px; text-align:center; color:var(--ink-soft); }
+  .empty-state b{ display:block; color:var(--navy-800); font-size:14px; margin-bottom:4px; }
+
+  .pager{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+    padding:10px 14px;
+    border-top:1px solid var(--line);
+    background:var(--paper);
+  }
+  .pager-controls{ display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:12px; }
+  .pager-controls button{
+    border:1px solid var(--line);
+    background:#fff;
+    padding:5px 10px;
+    border-radius:4px;
+    cursor:pointer;
+    font-family:var(--sans);
+    font-weight:600;
+    font-size:12px;
+  }
+  .pager-controls button:disabled{ opacity:.4; cursor:not-allowed; }
+  .pager-controls button:not(:disabled):hover{ border-color:var(--orange-500); color:var(--orange-600); }
+  select.pagesize{
+    font-family:var(--mono);
+    font-size:12px;
+    padding:5px 6px;
+    border:1px solid var(--line);
+    border-radius:4px;
+    background:#fff;
+  }
+
+  .loading, .err{
+    padding:60px 24px;
+    text-align:center;
+    color:var(--ink-soft);
+    font-family:var(--mono);
+    font-size:13px;
+  }
+  .loading .spin{
+    width:22px; height:22px;
+    border:3px solid var(--line);
+    border-top-color:var(--orange-600);
+    border-radius:50%;
+    margin:0 auto 14px;
+    animation:sp 0.8s linear infinite;
+  }
+  @keyframes sp{ to{ transform:rotate(360deg); } }
+  .err{ color:#A0341C; }
+
+  footer.foot{
+    max-width:1400px;
+    margin:0 auto;
+    padding:0 28px 40px;
+    color:var(--ink-soft);
+    font-size:11.5px;
+    font-family:var(--mono);
+  }
+  footer.foot a{ color:var(--navy-700); }
+
+  @media (max-width: 640px){
+    .wrap{ padding:16px; }
+    header.top{ padding:18px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <p class="eyebrow">Federal Reserve Bank of Atlanta &middot; Market Probability Tracker</p>
+  <h1>MPT Distribution Explorer</h1>
+  <p class="subhead">Filter and export discretized probability distributions estimated from CME 3-month SOFR options — rate percentiles/mean/mode and probability mass by 25bps target range, cut, and hike, by observation date and reference window.</p>
+  <div class="top-stats" id="topStats"></div>
+</header>
+
+<div class="wrap">
+
+  <div class="panel filters" id="filters" style="display:none;">
+
+    <div class="filt-group">
+      <label class="filt-label">Observation date</label>
+      <div class="range-row">
+        <input type="date" id="dateFrom">
+        <span>to</span>
+        <input type="date" id="dateTo">
+      </div>
+    </div>
+
+    <div class="filt-group">
+      <label class="filt-label">Reference window (start)</label>
+      <details class="msel" id="refSelDetails">
+        <summary><span id="refSelLabel">All selected</span></summary>
+        <div class="msel-panel" id="refSelPanel"></div>
+      </details>
+    </div>
+
+    <div class="filt-group">
+      <label class="filt-label">FOMC target range (obs. date)</label>
+      <details class="msel" id="trSelDetails">
+        <summary><span id="trSelLabel">All selected</span></summary>
+        <div class="msel-panel" id="trSelPanel"></div>
+      </details>
+    </div>
+
+    <div class="filt-group">
+      <label class="filt-label">Value range</label>
+      <div class="range-row">
+        <input type="number" id="valMin" placeholder="min" step="any">
+        <span>to</span>
+        <input type="number" id="valMax" placeholder="max" step="any">
+      </div>
+    </div>
+
+    <div class="filt-group">
+      <label class="filt-label">Field type</label>
+      <div class="seg" id="fieldTypeSeg">
+        <button data-val="All" class="active">All</button>
+        <button data-val="Rate">Rate</button>
+        <button data-val="Prob">Prob</button>
+      </div>
+    </div>
+
+    <div class="stat-sub" id="rateSub" style="display:none;">
+      <div class="filt-group">
+        <label class="filt-label">Rate statistic</label>
+        <div class="chk-row" id="rateStatChks"></div>
+      </div>
+    </div>
+
+    <div class="stat-sub" id="probSub" style="display:none;">
+      <div class="filt-group">
+        <label class="filt-label">Probability statistic</label>
+        <div class="chk-row" id="probStatChks"></div>
+      </div>
+      <div class="filt-group" id="bpsRangeGroup">
+        <label class="filt-label">25bps bucket range (bps)</label>
+        <div class="range-row">
+          <input type="number" id="bpsMin" step="25">
+          <span>to</span>
+          <input type="number" id="bpsMax" step="25">
+        </div>
+      </div>
+    </div>
+
+    <div class="filt-footer">
+      <div class="count-readout">
+        <b id="matchCount">0</b> of <span id="totalCount">0</span> rows match
+        (<span class="pct" id="matchPct">0%</span>) &middot;
+        sorted by <span id="sortReadout">date ↑</span>
+      </div>
+      <div class="btns">
+        <button class="ghost" id="resetBtn">Reset filters</button>
+        <button class="primary" id="exportBtn">Export filtered rows (CSV)</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="panel table-panel">
+    <div id="loadState" class="loading">
+      <div class="spin"></div>
+      Loading mpt_histdata.xlsx and parsing distributions&hellip;
+    </div>
+    <div id="errState" class="err" style="display:none;"></div>
+
+    <div class="table-scroll" id="tableWrap" style="display:none;">
+      <table class="data">
+        <thead>
+          <tr>
+            <th data-key="date">Date</th>
+            <th data-key="reference_start">Reference start</th>
+            <th data-key="target_range">Target range</th>
+            <th data-key="field">Field</th>
+            <th data-key="value" style="text-align:right;">Value</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <b>No rows match the current filters.</b>
+        Loosen a filter or hit Reset filters above.
+      </div>
+    </div>
+
+    <div class="pager" id="pager" style="display:none;">
+      <div class="pager-controls">
+        <span>Rows per page</span>
+        <select class="pagesize" id="pageSize">
+          <option>50</option>
+          <option selected>100</option>
+          <option>250</option>
+          <option>500</option>
+          <option>1000</option>
+        </select>
+      </div>
+      <div class="pager-controls">
+        <button id="firstPage">&laquo; First</button>
+        <button id="prevPage">&lsaquo; Prev</button>
+        <span id="pageReadout">Page 1 of 1</span>
+        <button id="nextPage">Next &rsaquo;</button>
+        <button id="lastPage">Last &raquo;</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer class="foot">
+  Source file: <code>mpt_histdata.xlsx</code> (same directory) &middot; parsed client-side, nothing leaves your browser.
+  Distributions estimated from CME 3-month SOFR option prices; see the workbook's DICTIONARY sheet for field definitions.
+</footer>
+
+<script>
+(function(){
+
+  // ---------- state ----------
+  var RAW = [];              // full parsed rows
+  var REF_STARTS = [];       // sorted unique reference_start
+  var TARGET_RANGES = [];    // sorted unique target_range (by lower bound)
+  var MIN_DATE = null, MAX_DATE = null;
+  var MAX_BUCKET_HI = 0;
+
+  var state = {
+    dateFrom: null, dateTo: null,
+    refSet: null,      // null = all
+    trSet: null,       // null = all
+    valMin: null, valMax: null,
+    fieldType: 'All',
+    rateStats: {'25th percentile':true, 'mean':true, 'mode':true, '75th percentile':true},
+    probStats: {'cut':true, 'hike':true, 'range':true},
+    bpsMin: null, bpsMax: null,
+    sortKey: 'date', sortDir: 1,
+    page: 1, pageSize: 100
+  };
+
+  var filtered = [];   // recomputed on filter change (sorted)
+
+  // ---------- helpers ----------
+  function parseFieldMeta(field){
+    var out = {field_type:null, field_stat:null, bucket_lo:null, bucket_hi:null};
+    if (field.indexOf('Rate:') === 0){
+      out.field_type = 'Rate';
+      out.field_stat = field.slice(6).trim();
+    } else if (field.indexOf('Prob:') === 0){
+      out.field_type = 'Prob';
+      var rest = field.slice(6).trim();
+      if (rest === 'cut' || rest === 'hike'){
+        out.field_stat = rest;
+      } else {
+        out.field_stat = 'range';
+        var m = rest.match(/(\d+)\s*bps\s*-\s*(\d+)\s*bps/);
+        if (m){ out.bucket_lo = parseInt(m[1],10); out.bucket_hi = parseInt(m[2],10); }
+      }
+    }
+    return out;
+  }
+
+  function targetRangeLo(tr){
+    var m = tr.match(/(\d+)\s*bps/);
+    return m ? parseInt(m[1],10) : 0;
+  }
+
+  function fmtDate(d){
+    // d is JS Date or already 'yyyy-mm-dd' string
+    if (typeof d === 'string') return d.slice(0,10);
+    var y = d.getFullYear(), m = ('0'+(d.getMonth()+1)).slice(-2), day = ('0'+d.getDate()).slice(-2);
+    return y+'-'+m+'-'+day;
+  }
+
+  function csvEscape(v){
+    v = String(v);
+    if (/[",\n]/.test(v)) return '"' + v.replace(/"/g,'""') + '"';
+    return v;
+  }
+
+  // ---------- load & parse ----------
+  fetch('mpt_histdata.xlsx')
+    .then(function(r){
+      if (!r.ok) throw new Error('HTTP ' + r.status + ' fetching mpt_histdata.xlsx');
+      return r.arrayBuffer();
+    })
+    .then(function(buf){
+      var wb = XLSX.read(buf, {type:'array', cellDates:true});
+      var ws = wb.Sheets['DATA'];
+      if (!ws) throw new Error("Workbook has no 'DATA' worksheet");
+      var rows = XLSX.utils.sheet_to_json(ws, {raw:true, defval:null});
+
+      var refSet = {}, trSet = {};
+      RAW = new Array(rows.length);
+      for (var i=0;i<rows.length;i++){
+        var r = rows[i];
+        var date = fmtDate(r.date);
+        var ref = fmtDate(r.reference_start);
+        var tr = r.target_range;
+        var field = r.field;
+        var val = (r.value === null || r.value === '') ? null : parseFloat(r.value);
+        var meta = parseFieldMeta(field);
+        RAW[i] = {
+          date: date, reference_start: ref, target_range: tr, field: field, value: val,
+          field_type: meta.field_type, field_stat: meta.field_stat,
+          bucket_lo: meta.bucket_lo, bucket_hi: meta.bucket_hi
+        };
+        refSet[ref] = true; trSet[tr] = true;
+        if (meta.bucket_hi && meta.bucket_hi > MAX_BUCKET_HI) MAX_BUCKET_HI = meta.bucket_hi;
+        if (MIN_DATE === null || date < MIN_DATE) MIN_DATE = date;
+        if (MAX_DATE === null || date > MAX_DATE) MAX_DATE = date;
+      }
+      REF_STARTS = Object.keys(refSet).sort();
+      TARGET_RANGES = Object.keys(trSet).sort(function(a,b){ return targetRangeLo(a)-targetRangeLo(b); });
+
+      init();
+    })
+    .catch(function(err){
+      document.getElementById('loadState').style.display = 'none';
+      var e = document.getElementById('errState');
+      e.style.display = 'block';
+      e.innerHTML = '<b>Could not load mpt_histdata.xlsx.</b><br>' + (err && err.message ? err.message : err) +
+        '<br><br>Make sure mpt_histdata.xlsx sits in the same directory as this page, and that you\'re viewing it over http(s):// (not file://) so the browser can fetch it.';
+    });
+
+  // ---------- init UI ----------
+  function init(){
+    document.getElementById('loadState').style.display = 'none';
+    document.getElementById('tableWrap').style.display = 'block';
+    document.getElementById('filters').style.display = 'grid';
+    document.getElementById('pager').style.display = 'flex';
+
+    document.getElementById('topStats').innerHTML =
+      '<div class="top-stat"><b>' + RAW.length.toLocaleString() + '</b>rows</div>' +
+      '<div class="top-stat"><b>' + MIN_DATE + ' &rarr; ' + MAX_DATE + '</b>observation range</div>' +
+      '<div class="top-stat"><b>' + REF_STARTS.length + '</b>reference windows</div>' +
+      '<div class="top-stat"><b>' + TARGET_RANGES.length + '</b>target ranges observed</div>';
+
+    document.getElementById('dateFrom').min = MIN_DATE;
+    document.getElementById('dateFrom').max = MAX_DATE;
+    document.getElementById('dateTo').min = MIN_DATE;
+    document.getElementById('dateTo').max = MAX_DATE;
+    document.getElementById('dateFrom').value = MIN_DATE;
+    document.getElementById('dateTo').value = MAX_DATE;
+    state.dateFrom = MIN_DATE; state.dateTo = MAX_DATE;
+
+    buildMultiSelect('refSelPanel', 'refSelLabel', REF_STARTS, function(setOrNull){
+      state.refSet = setOrNull; state.page = 1; recompute();
+    });
+    buildMultiSelect('trSelPanel', 'trSelLabel', TARGET_RANGES, function(setOrNull){
+      state.trSet = setOrNull; state.page = 1; recompute();
+    });
+
+    buildRateStatChks();
+    buildProbStatChks();
+    document.getElementById('bpsMin').placeholder = '0';
+    document.getElementById('bpsMax').placeholder = String(MAX_BUCKET_HI);
+
+    wireStaticControls();
+    recompute();
+  }
+
+  function buildMultiSelect(panelId, labelId, values, onChange){
+    var panel = document.getElementById(panelId);
+    var label = document.getElementById(labelId);
+    var selected = {}; // value -> true
+    values.forEach(function(v){ selected[v] = true; });
+
+    function refreshLabel(){
+      var n = Object.keys(selected).filter(function(k){return selected[k];}).length;
+      label.textContent = (n === values.length) ? 'All selected (' + n + ')' : n + ' of ' + values.length + ' selected';
+    }
+
+    var actions = document.createElement('div');
+    actions.className = 'msel-actions';
+    var allBtn = document.createElement('button'); allBtn.type='button'; allBtn.textContent = 'All';
+    var noneBtn = document.createElement('button'); noneBtn.type='button'; noneBtn.textContent = 'None';
+    actions.appendChild(allBtn); actions.appendChild(noneBtn);
+    panel.appendChild(actions);
+
+    var boxes = [];
+    values.forEach(function(v){
+      var lab = document.createElement('label');
+      lab.className = 'msel-item';
+      var cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.checked = true; cb.value = v;
+      cb.addEventListener('change', function(){
+        selected[v] = cb.checked;
+        refreshLabel();
+        emit();
+      });
+      boxes.push(cb);
+      var span = document.createElement('span');
+      span.textContent = v;
+      lab.appendChild(cb); lab.appendChild(span);
+      panel.appendChild(lab);
+    });
+
+    allBtn.addEventListener('click', function(){
+      boxes.forEach(function(cb){ cb.checked = true; selected[cb.value] = true; });
+      refreshLabel(); emit();
+    });
+    noneBtn.addEventListener('click', function(){
+      boxes.forEach(function(cb){ cb.checked = false; selected[cb.value] = false; });
+      refreshLabel(); emit();
+    });
+
+    function emit(){
+      var n = Object.keys(selected).filter(function(k){return selected[k];}).length;
+      if (n === values.length){ onChange(null); return; }
+      var s = {};
+      values.forEach(function(v){ if (selected[v]) s[v] = true; });
+      onChange(s);
+    }
+    refreshLabel();
+  }
+
+  function buildRateStatChks(){
+    var wrap = document.getElementById('rateStatChks');
+    ['25th percentile','mean','mode','75th percentile'].forEach(function(stat){
+      var lab = document.createElement('label'); lab.className = 'chk-item';
+      var cb = document.createElement('input'); cb.type='checkbox'; cb.checked = true;
+      cb.addEventListener('change', function(){ state.rateStats[stat] = cb.checked; state.page=1; recompute(); });
+      var span = document.createElement('span'); span.textContent = stat;
+      lab.appendChild(cb); lab.appendChild(span);
+      wrap.appendChild(lab);
+    });
+  }
+  function buildProbStatChks(){
+    var wrap = document.getElementById('probStatChks');
+    [['cut','cut'], ['hike','hike'], ['range','25bps range buckets']].forEach(function(pair){
+      var key = pair[0], display = pair[1];
+      var lab = document.createElement('label'); lab.className = 'chk-item';
+      var cb = document.createElement('input'); cb.type='checkbox'; cb.checked = true;
+      cb.addEventListener('change', function(){
+        state.probStats[key] = cb.checked; state.page=1; recompute();
+        document.getElementById('bpsRangeGroup').style.opacity = state.probStats.range ? '1' : '.4';
+      });
+      var span = document.createElement('span'); span.textContent = display;
+      lab.appendChild(cb); lab.appendChild(span);
+      wrap.appendChild(lab);
+    });
+  }
+
+  function wireStaticControls(){
+    document.getElementById('dateFrom').addEventListener('change', function(e){
+      state.dateFrom = e.target.value || MIN_DATE; state.page=1; recompute();
+    });
+    document.getElementById('dateTo').addEventListener('change', function(e){
+      state.dateTo = e.target.value || MAX_DATE; state.page=1; recompute();
+    });
+    document.getElementById('valMin').addEventListener('input', debounce(function(e){
+      state.valMin = e.target.value === '' ? null : parseFloat(e.target.value); state.page=1; recompute();
+    }));
+    document.getElementById('valMax').addEventListener('input', debounce(function(e){
+      state.valMax = e.target.value === '' ? null : parseFloat(e.target.value); state.page=1; recompute();
+    }));
+    document.getElementById('bpsMin').addEventListener('input', debounce(function(e){
+      state.bpsMin = e.target.value === '' ? null : parseFloat(e.target.value); state.page=1; recompute();
+    }));
+    document.getElementById('bpsMax').addEventListener('input', debounce(function(e){
+      state.bpsMax = e.target.value === '' ? null : parseFloat(e.target.value); state.page=1; recompute();
+    }));
+
+    var seg = document.getElementById('fieldTypeSeg');
+    seg.querySelectorAll('button').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        seg.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        state.fieldType = btn.dataset.val;
+        document.getElementById('rateSub').style.display = state.fieldType === 'Rate' ? 'flex' : 'none';
+        document.getElementById('probSub').style.display = state.fieldType === 'Prob' ? 'flex' : 'none';
+        state.page = 1;
+        recompute();
+      });
+    });
+
+    document.querySelectorAll('table.data thead th').forEach(function(th){
+      th.addEventListener('click', function(){
+        var key = th.dataset.key;
+        if (state.sortKey === key){ state.sortDir *= -1; }
+        else { state.sortKey = key; state.sortDir = 1; }
+        recompute();
+      });
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', resetFilters);
+    document.getElementById('exportBtn').addEventListener('click', exportCsv);
+
+    document.getElementById('pageSize').addEventListener('change', function(e){
+      state.pageSize = parseInt(e.target.value,10); state.page = 1; render();
+    });
+    document.getElementById('firstPage').addEventListener('click', function(){ state.page = 1; render(); });
+    document.getElementById('prevPage').addEventListener('click', function(){ state.page = Math.max(1, state.page-1); render(); });
+    document.getElementById('nextPage').addEventListener('click', function(){
+      var totalPages = Math.max(1, Math.ceil(filtered.length / state.pageSize));
+      state.page = Math.min(totalPages, state.page+1); render();
+    });
+    document.getElementById('lastPage').addEventListener('click', function(){
+      state.page = Math.max(1, Math.ceil(filtered.length / state.pageSize)); render();
+    });
+
+    // close open multiselect dropdowns on outside click
+    document.addEventListener('click', function(e){
+      document.querySelectorAll('details.msel[open]').forEach(function(d){
+        if (!d.contains(e.target)) d.removeAttribute('open');
+      });
+    });
+  }
+
+  function debounce(fn, ms){
+    var t;
+    return function(){
+      var args = arguments, ctx = this;
+      clearTimeout(t);
+      t = setTimeout(function(){ fn.apply(ctx, args); }, ms || 180);
+    };
+  }
+
+  function resetFilters(){
+    document.getElementById('dateFrom').value = MIN_DATE;
+    document.getElementById('dateTo').value = MAX_DATE;
+    state.dateFrom = MIN_DATE; state.dateTo = MAX_DATE;
+    state.valMin = null; state.valMax = null;
+    document.getElementById('valMin').value = '';
+    document.getElementById('valMax').value = '';
+    state.bpsMin = null; state.bpsMax = null;
+    document.getElementById('bpsMin').value = '';
+    document.getElementById('bpsMax').value = '';
+    state.fieldType = 'All';
+    document.querySelectorAll('#fieldTypeSeg button').forEach(function(b){ b.classList.toggle('active', b.dataset.val==='All'); });
+    document.getElementById('rateSub').style.display = 'none';
+    document.getElementById('probSub').style.display = 'none';
+    state.rateStats = {'25th percentile':true, 'mean':true, 'mode':true, '75th percentile':true};
+    state.probStats = {'cut':true, 'hike':true, 'range':true};
+    document.querySelectorAll('#rateStatChks input, #probStatChks input').forEach(function(cb){ cb.checked = true; });
+    state.refSet = null; state.trSet = null;
+    document.querySelectorAll('#refSelPanel input, #trSelPanel input').forEach(function(cb){ cb.checked = true; });
+    document.getElementById('refSelLabel').textContent = 'All selected (' + REF_STARTS.length + ')';
+    document.getElementById('trSelLabel').textContent = 'All selected (' + TARGET_RANGES.length + ')';
+    state.sortKey = 'date'; state.sortDir = 1;
+    state.page = 1;
+    recompute();
+  }
+
+  // ---------- filter / sort / render ----------
+  function matches(row){
+    if (row.date < state.dateFrom || row.date > state.dateTo) return false;
+    if (state.refSet && !state.refSet[row.reference_start]) return false;
+    if (state.trSet && !state.trSet[row.target_range]) return false;
+    if (state.valMin !== null && row.value < state.valMin) return false;
+    if (state.valMax !== null && row.value > state.valMax) return false;
+
+    if (state.fieldType === 'Rate'){
+      if (row.field_type !== 'Rate') return false;
+      if (!state.rateStats[row.field_stat]) return false;
+    } else if (state.fieldType === 'Prob'){
+      if (row.field_type !== 'Prob') return false;
+      if (row.field_stat === 'cut' && !state.probStats.cut) return false;
+      if (row.field_stat === 'hike' && !state.probStats.hike) return false;
+      if (row.field_stat === 'range'){
+        if (!state.probStats.range) return false;
+        if (state.bpsMin !== null && row.bucket_lo < state.bpsMin) return false;
+        if (state.bpsMax !== null && row.bucket_hi > state.bpsMax) return false;
+      }
+    }
+    return true;
+  }
+
+  function recompute(){
+    filtered = RAW.filter(matches);
+    sortFiltered();
+    render();
+  }
+
+  function sortFiltered(){
+    var key = state.sortKey, dir = state.sortDir;
+    filtered.sort(function(a,b){
+      var av = a[key], bv = b[key];
+      if (key === 'value'){ av = av===null?-Infinity:av; bv = bv===null?-Infinity:bv; return (av-bv)*dir; }
+      if (av < bv) return -1*dir;
+      if (av > bv) return 1*dir;
+      return 0;
+    });
+  }
+
+  function render(){
+    var total = RAW.length, n = filtered.length;
+    document.getElementById('matchCount').textContent = n.toLocaleString();
+    document.getElementById('totalCount').textContent = total.toLocaleString();
+    document.getElementById('matchPct').textContent = total ? (100*n/total).toFixed(1) + '%' : '0%';
+    document.getElementById('exportBtn').disabled = n === 0;
+
+    document.querySelectorAll('table.data thead th').forEach(function(th){
+      var arrow = th.querySelector('.arrow');
+      if (arrow) arrow.remove();
+      if (th.dataset.key === state.sortKey){
+        var s = document.createElement('span');
+        s.className = 'arrow';
+        s.textContent = state.sortDir === 1 ? '↑' : '↓';
+        th.appendChild(s);
+      }
+    });
+    document.getElementById('sortReadout').textContent = state.sortKey + ' ' + (state.sortDir===1?'↑':'↓');
+
+    var totalPages = Math.max(1, Math.ceil(n / state.pageSize));
+    if (state.page > totalPages) state.page = totalPages;
+    document.getElementById('pageReadout').textContent = 'Page ' + state.page + ' of ' + totalPages;
+    document.getElementById('firstPage').disabled = state.page <= 1;
+    document.getElementById('prevPage').disabled = state.page <= 1;
+    document.getElementById('nextPage').disabled = state.page >= totalPages;
+    document.getElementById('lastPage').disabled = state.page >= totalPages;
+
+    var start = (state.page-1)*state.pageSize;
+    var slice = filtered.slice(start, start+state.pageSize);
+
+    var tbody = document.getElementById('tbody');
+    var html = [];
+    for (var i=0;i<slice.length;i++){
+      var r = slice[i];
+      var tagClass = r.field_type === 'Rate' ? 'tag-rate' : 'tag-prob';
+      html.push(
+        '<tr><td>'+r.date+'</td><td>'+r.reference_start+'</td><td>'+r.target_range+
+        '</td><td class="'+tagClass+'">'+r.field+
+        '</td><td class="num">'+(r.value===null?'':r.value)+'</td></tr>'
+      );
+    }
+    tbody.innerHTML = html.join('');
+    document.getElementById('emptyState').style.display = n === 0 ? 'block' : 'none';
+    document.getElementById('tbody').parentElement.style.display = n === 0 ? 'none' : 'table';
+  }
+
+  function exportCsv(){
+    if (!filtered.length) return;
+    var lines = ['date,reference_start,target_range,field,value'];
+    for (var i=0;i<filtered.length;i++){
+      var r = filtered[i];
+      lines.push([r.date, r.reference_start, r.target_range, csvEscape(r.field), r.value===null?'':r.value].join(','));
+    }
+    var blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    var ts = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+    a.href = url;
+    a.download = 'mpt_export_' + ts + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+})();
+</script>
+
+</body>
+</html>
