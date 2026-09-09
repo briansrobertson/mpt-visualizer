@@ -11,30 +11,26 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans/700.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-mono/400.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-mono/600.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/source-serif-4/600.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
 
 <style>
   :root{
-    --purple-900:#241F2E;
-    --purple-800:#3D3550;
-    --purple-700:#3F2666;
-    --purple-600:#5C3A91;
-    --purple-500:#7C5CB0;
-    --purple-200:#C9A8FF;
-    --purple-100:#EFEAF6;
-    --terracotta:#B1562F;
-    --paper:#F7F3EC;
+    --navy-900:#0A1730;
+    --navy-800:#0F2141;
+    --navy-700:#16305C;
+    --navy-500:#274B87;
+    --orange-600:#C1521C;
+    --orange-500:#D9662A;
+    --orange-100:#FBE7DA;
+    --paper:#EEF0F3;
     --panel:#FFFFFF;
-    --ink:#1C1A17;
-    --ink-soft:#6B6459;
-    --line:#E2DBD0;
-    --line-soft:#EDE7DE;
+    --ink:#0F1522;
+    --ink-soft:#4A5468;
+    --line:#D6DAE2;
+    --line-soft:#E7E9EE;
     --good:#2E7D4F;
     --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
     --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --serif: "Source Serif 4", Georgia, serif;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -48,29 +44,28 @@
 
   /* ---------- header ---------- */
   header.top{
-    background:linear-gradient(180deg, var(--purple-900) 0%, var(--purple-800) 100%);
+    background:linear-gradient(180deg, var(--navy-900) 0%, var(--navy-800) 100%);
     color:#EDEFF4;
     padding:22px 28px 20px;
-    border-bottom:3px solid var(--purple-600);
+    border-bottom:3px solid var(--orange-600);
   }
   .eyebrow{
     font-family:var(--mono);
     font-size:11px;
     letter-spacing:.14em;
     text-transform:uppercase;
-    color:var(--purple-500);
+    color:var(--orange-500);
     margin:0 0 6px;
   }
   h1{
     margin:0 0 6px;
-    font-family:var(--serif);
-    font-size:26px;
-    font-weight:600;
+    font-size:22px;
+    font-weight:700;
     letter-spacing:-.01em;
   }
   .subhead{
     margin:0;
-    color:#C7BBDC;
+    color:#B9C2D6;
     font-size:12.5px;
     max-width:920px;
   }
@@ -83,8 +78,8 @@
   .top-stat{
     font-family:var(--mono);
     font-size:11.5px;
-    color:#B0A2C6;
-    border-left:2px solid var(--purple-700);
+    color:#9FACC7;
+    border-left:2px solid var(--navy-500);
     padding-left:10px;
   }
   .top-stat b{
@@ -140,9 +135,9 @@
     width:100%;
   }
   input[type=date]:focus, input[type=number]:focus, input[type=text]:focus{
-    outline:2px solid var(--purple-500);
+    outline:2px solid var(--orange-500);
     outline-offset:1px;
-    border-color:var(--purple-500);
+    border-color:var(--orange-500);
   }
   .range-row{ display:flex; align-items:center; gap:6px; }
   .range-row span{ color:var(--ink-soft); font-size:11px; }
@@ -204,7 +199,7 @@
     border-radius:3px;
     cursor:pointer;
   }
-  .msel-actions button:hover{ background:var(--purple-100); border-color:var(--purple-500); color:var(--purple-600); }
+  .msel-actions button:hover{ background:var(--orange-100); border-color:var(--orange-500); color:var(--orange-600); }
   label.msel-item{
     display:flex;
     align-items:center;
@@ -216,7 +211,7 @@
     cursor:pointer;
   }
   label.msel-item:hover{ background:var(--paper); }
-  label.msel-item input{ accent-color:var(--purple-600); }
+  label.msel-item input{ accent-color:var(--orange-600); }
 
   .seg{
     display:flex;
@@ -237,8 +232,8 @@
     border-right:1px solid var(--line);
   }
   .seg button:last-child{ border-right:none; }
-  .seg button.active{ background:var(--purple-800); color:#fff; }
-  .seg button:hover:not(.active){ background:var(--purple-100); color:var(--purple-600); }
+  .seg button.active{ background:var(--navy-800); color:#fff; }
+  .seg button:hover:not(.active){ background:var(--orange-100); color:var(--orange-600); }
 
   .stat-sub{
     grid-column:1 / -1;
@@ -254,7 +249,7 @@
     display:flex; align-items:center; gap:6px;
     font-family:var(--mono); font-size:12.5px; color:var(--ink);
   }
-  .chk-item input{ accent-color:var(--purple-600); }
+  .chk-item input{ accent-color:var(--orange-600); }
 
   .filt-footer{
     grid-column:1 / -1;
@@ -271,8 +266,8 @@
     font-size:12.5px;
     color:var(--ink-soft);
   }
-  .count-readout b{ color:var(--purple-800); font-size:14px; }
-  .count-readout .pct{ color:var(--purple-600); }
+  .count-readout b{ color:var(--navy-800); font-size:14px; }
+  .count-readout .pct{ color:var(--orange-600); }
 
   .btns{ display:flex; gap:10px; }
   button.primary, button.ghost{
@@ -284,18 +279,18 @@
     cursor:pointer;
   }
   button.primary{
-    background:var(--purple-600);
+    background:var(--orange-600);
     color:#fff;
-    border:1px solid var(--purple-600);
+    border:1px solid var(--orange-600);
   }
-  button.primary:hover{ background:#46315C; }
-  button.primary:disabled{ background:#CBBFDC; border-color:#CBBFDC; cursor:not-allowed; }
+  button.primary:hover{ background:#A9451A; }
+  button.primary:disabled{ background:#C9AE9F; border-color:#C9AE9F; cursor:not-allowed; }
   button.ghost{
     background:#fff;
-    color:var(--purple-800);
+    color:var(--navy-800);
     border:1px solid var(--line);
   }
-  button.ghost:hover{ border-color:var(--purple-700); }
+  button.ghost:hover{ border-color:var(--navy-500); }
 
   /* ---------- table ---------- */
   .table-panel{ overflow:hidden; }
@@ -308,7 +303,7 @@
   }
   table.data thead th{
     position:sticky; top:0;
-    background:var(--purple-900);
+    background:var(--navy-900);
     color:#EDEFF4;
     text-align:left;
     padding:9px 12px;
@@ -321,21 +316,21 @@
     white-space:nowrap;
     user-select:none;
   }
-  table.data thead th:hover{ background:var(--purple-700); }
-  table.data thead th .arrow{ color:var(--purple-500); margin-left:4px; }
+  table.data thead th:hover{ background:var(--navy-700); }
+  table.data thead th .arrow{ color:var(--orange-500); margin-left:4px; }
   table.data tbody td{
     padding:7px 12px;
     border-bottom:1px solid var(--line-soft);
     white-space:nowrap;
   }
-  table.data tbody tr:nth-child(even){ background:#FBF9F5; }
-  table.data tbody tr:hover{ background:var(--purple-100); }
-  td.num{ text-align:right; font-weight:600; color:var(--purple-800); }
-  td.tag-rate{ color:var(--purple-700); }
-  td.tag-prob{ color:var(--purple-600); }
+  table.data tbody tr:nth-child(even){ background:#FAFBFC; }
+  table.data tbody tr:hover{ background:var(--orange-100); }
+  td.num{ text-align:right; font-weight:600; color:var(--navy-800); }
+  td.tag-rate{ color:var(--navy-700); }
+  td.tag-prob{ color:var(--orange-600); }
 
   .empty-state{ padding:60px 20px; text-align:center; color:var(--ink-soft); }
-  .empty-state b{ display:block; color:var(--purple-800); font-size:14px; margin-bottom:4px; }
+  .empty-state b{ display:block; color:var(--navy-800); font-size:14px; margin-bottom:4px; }
 
   .pager{
     display:flex;
@@ -359,7 +354,7 @@
     font-size:12px;
   }
   .pager-controls button:disabled{ opacity:.4; cursor:not-allowed; }
-  .pager-controls button:not(:disabled):hover{ border-color:var(--purple-500); color:var(--purple-600); }
+  .pager-controls button:not(:disabled):hover{ border-color:var(--orange-500); color:var(--orange-600); }
   select.pagesize{
     font-family:var(--mono);
     font-size:12px;
@@ -379,7 +374,7 @@
   .loading .spin{
     width:22px; height:22px;
     border:3px solid var(--line);
-    border-top-color:var(--purple-600);
+    border-top-color:var(--orange-600);
     border-radius:50%;
     margin:0 auto 14px;
     animation:sp 0.8s linear infinite;
@@ -395,91 +390,15 @@
     font-size:11.5px;
     font-family:var(--mono);
   }
-  footer.foot a{ color:var(--purple-700); }
+  footer.foot a{ color:var(--navy-700); }
 
   .def-link{
-    color:var(--purple-500);
+    color:var(--orange-500);
     font-weight:600;
     text-decoration:underline;
     text-underline-offset:2px;
   }
-  .def-link:hover{ color:var(--purple-600); }
-
-  /* ---------- view tabs ---------- */
-  .view-tabs{ margin-top:16px; }
-  .view-tabs .seg button{ font-size:12.5px; padding:7px 16px; }
-  .view-tabs .seg button.active{ background:var(--purple-600); }
-
-  /* ---------- visualizations ---------- */
-  .viz-panel{ padding:20px 22px 22px; margin-bottom:16px; }
-  .viz-panel-head{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    flex-wrap:wrap;
-    gap:10px;
-    margin-bottom:14px;
-  }
-  .viz-panel-head h2{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:18px;
-    margin:0 0 4px;
-    color:var(--purple-900);
-  }
-  .viz-panel-note{
-    font-size:12px;
-    color:var(--ink-soft);
-    max-width:520px;
-    margin:0;
-  }
-  .viz-row{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-  @media (max-width: 900px){ .viz-row{ grid-template-columns:1fr; } }
-  .chart-box{ width:100%; height:340px; }
-  .chart-box.tall{ height:380px; }
-
-  .obs-scrubber{
-    display:flex;
-    align-items:center;
-    gap:14px;
-    padding:10px 4px 4px;
-    flex-wrap:wrap;
-  }
-  .obs-scrubber label{
-    font-size:10.5px;
-    font-weight:600;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-    color:var(--ink-soft);
-    white-space:nowrap;
-  }
-  .obs-scrubber input[type=range]{
-    flex:1;
-    min-width:180px;
-    accent-color:var(--purple-600);
-  }
-  .obs-scrubber .date-readout{
-    font-family:var(--mono);
-    font-size:13px;
-    font-weight:600;
-    color:var(--purple-700);
-    white-space:nowrap;
-    min-width:88px;
-  }
-  .meeting-picker{
-    display:flex;
-    align-items:center;
-    gap:14px;
-    flex-wrap:wrap;
-    margin-bottom:16px;
-  }
-  .meeting-picker label{
-    font-size:10.5px;
-    font-weight:600;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-    color:var(--ink-soft);
-  }
+  .def-link:hover{ color:var(--orange-600); }
 
   @media (max-width: 640px){
     .wrap{ padding:16px; }
@@ -490,7 +409,7 @@
   body.modal-lock{ overflow:hidden; }
   .modal-overlay{
     position:fixed; inset:0;
-    background:rgba(24,16,36,.74);
+    background:rgba(8,17,36,.74);
     z-index:1000;
     display:flex;
     align-items:center;
@@ -504,17 +423,16 @@
     max-height:85vh;
     overflow-y:auto;
     border-radius:8px;
-    border-top:4px solid var(--purple-600);
+    border-top:4px solid var(--orange-600);
     padding:30px 32px 26px;
     box-shadow:0 24px 70px rgba(4,10,24,.45);
   }
   .modal-panel .eyebrow{ margin-bottom:8px; }
   .modal-panel h2{
     margin:0 0 16px;
-    font-family:var(--serif);
-    font-size:20px;
-    font-weight:600;
-    color:var(--purple-900);
+    font-size:18px;
+    font-weight:700;
+    color:var(--navy-900);
   }
   .modal-body p{
     font-size:12.5px;
@@ -579,17 +497,9 @@
   <h1>MPT Data Explorer</h1>
   <p class="subhead">Filter and export discretized probability distributions estimated from CME 3-month SOFR options — rate percentiles/mean/mode and probability mass by 25bps target range, cut, and hike, by observation date and reference window. <a class="def-link" href="field-definitions.html" target="_blank" rel="noopener">Click here for field definitions.</a></p>
   <div class="top-stats" id="topStats"></div>
-  <div class="view-tabs">
-    <div class="seg" id="viewSeg">
-      <button data-view="table" class="active">Data Explorer</button>
-      <button data-view="viz">Visualizations</button>
-    </div>
-  </div>
 </header>
 
 <div class="wrap">
-
-  <div id="viewTable">
 
   <div class="panel filters" id="filters" style="display:none;">
 
@@ -710,58 +620,10 @@
     </div>
   </div>
 
-  </div>
-
-  <div id="viewViz" style="display:none;">
-
-    <div class="panel viz-panel">
-      <div class="viz-panel-head">
-        <div>
-          <h2>Implied policy rate path</h2>
-          <p class="viz-panel-note">Market-implied midpoint of the fed funds target range at each upcoming FOMC meeting, with the CME options-implied confidence band. Scrub through observation dates to see how the path has shifted.</p>
-        </div>
-      </div>
-      <div class="chart-box tall" id="chartRatePath"></div>
-      <div class="obs-scrubber">
-        <label for="obsDateRange">Observation date</label>
-        <input type="range" id="obsDateRange" min="0" max="0" step="1" value="0">
-        <span class="date-readout" id="obsDateReadout">&mdash;</span>
-      </div>
-    </div>
-
-    <div class="meeting-picker">
-      <label>FOMC meeting</label>
-      <div class="seg" id="meetingSeg"></div>
-    </div>
-
-    <div class="viz-row">
-      <div class="panel viz-panel">
-        <div class="viz-panel-head">
-          <div>
-            <h2>Probability by target range</h2>
-            <p class="viz-panel-note">Options-implied probability of each 25bps target range at the selected meeting, as of the selected observation date.</p>
-          </div>
-        </div>
-        <div class="chart-box" id="chartBuckets"></div>
-      </div>
-
-      <div class="panel viz-panel">
-        <div class="viz-panel-head">
-          <div>
-            <h2>Cut / hike probability over time</h2>
-            <p class="viz-panel-note">Probability of at least one 25bps cut or hike by the selected meeting, tracked across all observation dates.</p>
-          </div>
-        </div>
-        <div class="chart-box" id="chartHikeCut"></div>
-      </div>
-    </div>
-
-  </div>
-
 </div>
 
 <footer class="foot">
-  Source files: <code>mpt_histdata.xlsx</code>, <code>mptvizdata.xlsx</code> &middot; parsed client-side.
+  Source file: <code>mpt_histdata.xlsx</code> &middot; parsed client-side.
   Distributions estimated from CME 3-month SOFR option prices.
 </footer>
 
@@ -783,25 +645,6 @@
       modal.style.display = 'none';
       document.body.classList.remove('modal-lock');
     });
-  })();
-
-  // ---------- view tabs ----------
-  (function(){
-    var seg = document.getElementById('viewSeg');
-    seg.querySelectorAll('button').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        seg.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
-        btn.classList.add('active');
-        var view = btn.dataset.view;
-        document.getElementById('viewTable').style.display = view === 'table' ? 'block' : 'none';
-        document.getElementById('viewViz').style.display = view === 'viz' ? 'block' : 'none';
-        if (view === 'viz') resizeVizCharts();
-      });
-    });
-    window.addEventListener('resize', resizeVizCharts);
-    function resizeVizCharts(){
-      Object.keys(vizCharts).forEach(function(k){ if (vizCharts[k]) vizCharts[k].resize(); });
-    }
   })();
 
   // ---------- state ----------
@@ -907,224 +750,6 @@
       e.innerHTML = '<b>Could not load mpt_histdata.xlsx.</b><br>' + (err && err.message ? err.message : err) +
         '<br><br>Make sure mpt_histdata.xlsx sits in the same directory as this page, and that you\'re viewing it over http(s):// (not file://) so the browser can fetch it.';
     });
-
-  // ---------- visualizations: state ----------
-  var VIZ = null;
-  var vizCharts = { ratePath:null, buckets:null, hikeCut:null };
-  var vizState = { dateIdx:0, meeting:null };
-
-  var PALETTE = {
-    inkSoft:'#6B6459', line:'#E2DBD0',
-    purple700:'#3F2666', purple600:'#5C3A91', purple200:'#C9A8FF',
-    terracotta:'#B1562F'
-  };
-
-  fetch('mptvizdata.xlsx')
-    .then(function(r){
-      if (!r.ok) throw new Error('HTTP ' + r.status + ' fetching mptvizdata.xlsx');
-      return r.arrayBuffer();
-    })
-    .then(function(buf){
-      VIZ = parseVizWorkbook(buf);
-      initVizUI();
-    })
-    .catch(function(err){
-      ['chartRatePath','chartBuckets','chartHikeCut'].forEach(function(id){
-        document.getElementById(id).innerHTML =
-          '<div class="err">Could not load mptvizdata.xlsx.<br>' + (err && err.message ? err.message : err) + '</div>';
-      });
-    });
-
-  function parseVizWorkbook(buf){
-    var wb = XLSX.read(buf, {type:'array', cellDates:true});
-
-    // numhikepath: one row per observation date; {meeting}_mid/_low/_high columns
-    var whpRows = XLSX.utils.sheet_to_json(wb.Sheets['numhikepath'], {header:1, raw:true, defval:null});
-    var whpHeader = whpRows[0];
-    var meetingCols = [];
-    for (var c=1;c<whpHeader.length;c++){
-      var m = String(whpHeader[c]).match(/^(.*)_(mid|low|high)$/);
-      if (!m) continue;
-      var entry = null;
-      for (var k=0;k<meetingCols.length;k++){ if (meetingCols[k].meeting === m[1]) entry = meetingCols[k]; }
-      if (!entry){ entry = {meeting:m[1]}; meetingCols.push(entry); }
-      entry[m[2]+'Idx'] = c;
-    }
-    meetingCols.sort(function(a,b){ return a.meeting < b.meeting ? -1 : a.meeting > b.meeting ? 1 : 0; });
-
-    var rateByDate = {}, dates = [];
-    for (var r=1;r<whpRows.length;r++){
-      var row = whpRows[r];
-      if (!row || row[0] == null) continue;
-      var d = fmtDate(row[0]);
-      dates.push(d);
-      var byMeeting = {};
-      meetingCols.forEach(function(e){
-        byMeeting[e.meeting] = { mid: row[e.midIdx], low: row[e.lowIdx], high: row[e.highIdx] };
-      });
-      rateByDate[d] = byMeeting;
-    }
-    dates.sort();
-
-    // hikecut_probs: wide format, rows = (meeting, cut|hike), cols = observation dates
-    var hcpRows = XLSX.utils.sheet_to_json(wb.Sheets['hikecut_probs'], {header:1, raw:true, defval:null});
-    var hcpHeader = hcpRows[0];
-    var hcpDateCols = [];
-    for (var c2=2;c2<hcpHeader.length;c2++){ hcpDateCols.push({idx:c2, date: fmtDate(hcpHeader[c2])}); }
-    var hikecutByMeeting = {};
-    for (var r2=1;r2<hcpRows.length;r2++){
-      var row2 = hcpRows[r2];
-      if (!row2 || row2[0] == null) continue;
-      var meeting2 = fmtDate(row2[0]);
-      var kind2 = row2[1];
-      if (!hikecutByMeeting[meeting2]) hikecutByMeeting[meeting2] = {};
-      hcpDateCols.forEach(function(dc){
-        if (!hikecutByMeeting[meeting2][dc.date]) hikecutByMeeting[meeting2][dc.date] = {};
-        hikecutByMeeting[meeting2][dc.date][kind2] = row2[dc.idx];
-      });
-    }
-
-    // probs: long format d_y/from/to/bucket/date/contract/prob
-    var probRows = XLSX.utils.sheet_to_json(wb.Sheets['probs'], {raw:true, defval:null});
-    var probsByMeetingDate = {};
-    probRows.forEach(function(pr){
-      var meeting3 = fmtDate(pr.contract), date3 = fmtDate(pr.date);
-      if (!probsByMeetingDate[meeting3]) probsByMeetingDate[meeting3] = {};
-      if (!probsByMeetingDate[meeting3][date3]) probsByMeetingDate[meeting3][date3] = {};
-      probsByMeetingDate[meeting3][date3][pr.bucket] = pr.prob;
-    });
-
-    // bin_names: canonical bucket display order
-    var bnRows = XLSX.utils.sheet_to_json(wb.Sheets['bin_names'], {header:1, raw:true, defval:null});
-    var binOrder = [];
-    for (var i=1;i<bnRows.length;i++){ if (bnRows[i] && bnRows[i][0] != null) binOrder.push(bnRows[i][0]); }
-
-    return {
-      dates: dates,
-      rateByDate: rateByDate,
-      rateMeetings: meetingCols.map(function(e){ return e.meeting; }),
-      hikecutByMeeting: hikecutByMeeting,
-      probsByMeetingDate: probsByMeetingDate,
-      binOrder: binOrder,
-      meetings: Object.keys(hikecutByMeeting).sort()
-    };
-  }
-
-  function meetingLabel(dateStr){
-    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    var parts = dateStr.split('-');
-    return months[parseInt(parts[1],10)-1] + ' ' + parts[0];
-  }
-
-  function initVizUI(){
-    var dates = VIZ.dates;
-    var slider = document.getElementById('obsDateRange');
-    slider.min = 0; slider.max = dates.length - 1; slider.value = dates.length - 1;
-    vizState.dateIdx = dates.length - 1;
-    document.getElementById('obsDateReadout').textContent = dates[vizState.dateIdx];
-    slider.addEventListener('input', function(){
-      vizState.dateIdx = parseInt(slider.value, 10);
-      document.getElementById('obsDateReadout').textContent = dates[vizState.dateIdx];
-      renderRatePath(); renderBuckets(); renderHikeCut();
-    });
-
-    var seg = document.getElementById('meetingSeg');
-    seg.innerHTML = '';
-    VIZ.meetings.forEach(function(m, i){
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.textContent = meetingLabel(m);
-      if (i === 0) btn.classList.add('active');
-      btn.addEventListener('click', function(){
-        seg.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
-        btn.classList.add('active');
-        vizState.meeting = m;
-        renderBuckets(); renderHikeCut();
-      });
-      seg.appendChild(btn);
-    });
-    vizState.meeting = VIZ.meetings[0];
-
-    vizCharts.ratePath = echarts.init(document.getElementById('chartRatePath'));
-    vizCharts.buckets = echarts.init(document.getElementById('chartBuckets'));
-    vizCharts.hikeCut = echarts.init(document.getElementById('chartHikeCut'));
-
-    renderRatePath(); renderBuckets(); renderHikeCut();
-  }
-
-  function renderRatePath(){
-    var date = VIZ.dates[vizState.dateIdx];
-    var byMeeting = VIZ.rateByDate[date] || {};
-    var meetings = VIZ.rateMeetings;
-    var labels = meetings.map(meetingLabel);
-    var lows = [], bands = [], mids = [];
-    meetings.forEach(function(m){
-      var v = byMeeting[m] || {};
-      var lo = v.low != null ? v.low : null, hi = v.high != null ? v.high : null;
-      lows.push(lo);
-      bands.push((lo != null && hi != null) ? (hi - lo) : null);
-      mids.push(v.mid != null ? v.mid : null);
-    });
-
-    vizCharts.ratePath.setOption({
-      grid: { left:52, right:20, top:20, bottom:36 },
-      tooltip: {
-        trigger:'axis',
-        formatter: function(params){
-          var idx = params[0].dataIndex, v = byMeeting[meetings[idx]] || {};
-          if (v.mid == null) return labels[idx] + '<br>no data';
-          return labels[idx] + '<br>Mid: ' + v.mid.toFixed(0) + 'bps<br>Range: ' + v.low.toFixed(0) + '&ndash;' + v.high.toFixed(0) + 'bps';
-        }
-      },
-      xAxis: { type:'category', data: labels, axisLine:{lineStyle:{color:PALETTE.line}}, axisLabel:{color:PALETTE.inkSoft, fontFamily:'IBM Plex Mono', fontSize:11} },
-      yAxis: { type:'value', name:'bps', axisLine:{show:false}, splitLine:{lineStyle:{color:PALETTE.line}}, axisLabel:{color:PALETTE.inkSoft, fontFamily:'IBM Plex Mono', fontSize:11} },
-      series: [
-        { name:'low', type:'line', data: lows, stack:'band', symbol:'none', lineStyle:{opacity:0}, tooltip:{show:false} },
-        { name:'range', type:'line', data: bands, stack:'band', symbol:'none', lineStyle:{opacity:0}, areaStyle:{color:PALETTE.purple200, opacity:.5}, tooltip:{show:false} },
-        { name:'mid', type:'line', data: mids, symbol:'circle', symbolSize:6, lineStyle:{width:2.5, color:PALETTE.purple600}, itemStyle:{color:PALETTE.purple600} }
-      ]
-    });
-  }
-
-  function shortBucket(b){ return b.replace(/bps/g, ''); }
-
-  function renderBuckets(){
-    var date = VIZ.dates[vizState.dateIdx], meeting = vizState.meeting;
-    var byBucket = (VIZ.probsByMeetingDate[meeting] && VIZ.probsByMeetingDate[meeting][date]) || {};
-    var order = VIZ.binOrder.length ? VIZ.binOrder : Object.keys(byBucket);
-    var values = order.map(function(b){ return byBucket[b] != null ? byBucket[b] : 0; });
-    var labels = order.map(shortBucket);
-
-    vizCharts.buckets.setOption({
-      grid: { left:50, right:20, top:20, bottom:60 },
-      tooltip: { trigger:'axis', axisPointer:{type:'shadow'}, formatter: function(p){ return order[p[0].dataIndex] + '<br>' + p[0].value.toFixed(1) + '%'; } },
-      xAxis: { type:'category', data: labels, axisLabel:{ rotate:45, color:PALETTE.inkSoft, fontFamily:'IBM Plex Mono', fontSize:10, hideOverlap:true }, axisLine:{lineStyle:{color:PALETTE.line}} },
-      yAxis: { type:'value', name:'probability (%)', axisLine:{show:false}, splitLine:{lineStyle:{color:PALETTE.line}}, axisLabel:{color:PALETTE.inkSoft, fontFamily:'IBM Plex Mono', fontSize:11} },
-      series: [{ type:'bar', data: values, itemStyle:{ color:PALETTE.purple600, borderRadius:[3,3,0,0] }, barMaxWidth:26 }]
-    });
-  }
-
-  function renderHikeCut(){
-    var meeting = vizState.meeting;
-    var series = VIZ.hikecutByMeeting[meeting] || {};
-    var dates = VIZ.dates;
-    var cuts = dates.map(function(d){ return series[d] && series[d].cut != null ? series[d].cut : null; });
-    var hikes = dates.map(function(d){ return series[d] && series[d].hike != null ? series[d].hike : null; });
-
-    vizCharts.hikeCut.setOption({
-      color: [PALETTE.terracotta, PALETTE.purple600],
-      grid: { left:50, right:20, top:36, bottom:36 },
-      legend: { top:0, textStyle:{color:PALETTE.inkSoft, fontFamily:'IBM Plex Sans', fontSize:12} },
-      tooltip: { trigger:'axis' },
-      xAxis: { type:'category', data: dates, axisLabel:{ show:false }, axisTick:{show:false}, axisLine:{lineStyle:{color:PALETTE.line}} },
-      yAxis: { type:'value', name:'probability (%)', axisLine:{show:false}, splitLine:{lineStyle:{color:PALETTE.line}}, axisLabel:{color:PALETTE.inkSoft, fontFamily:'IBM Plex Mono', fontSize:11} },
-      series: [
-        { name:'cut', type:'line', data: cuts, symbol:'none', smooth:true, lineStyle:{width:2} },
-        { name:'hike', type:'line', data: hikes, symbol:'none', smooth:true, lineStyle:{width:2},
-          markLine: { symbol:'none', silent:true, lineStyle:{color:PALETTE.purple700, type:'dashed'}, label:{show:false}, data:[{ xAxis: vizState.dateIdx }] } }
-      ]
-    });
-  }
 
   // ---------- init UI ----------
   function init(){
